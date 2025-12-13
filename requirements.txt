@@ -1,0 +1,13 @@
+pandas
+joblib
+scikit-learn
+mlflow
+evidently
+matplotlib
+seaborn
+pyyaml
+fastapi
+uvicorn
+numpy
+streamlit
+parfect

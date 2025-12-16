@@ -2,7 +2,7 @@ pandas
 joblib
 scikit-learn
 mlflow
-evidently
+evidently==0.6.7
 matplotlib
 seaborn
 pyyaml

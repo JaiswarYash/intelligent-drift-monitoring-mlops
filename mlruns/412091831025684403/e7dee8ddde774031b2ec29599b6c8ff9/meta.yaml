@@ -1,0 +1,15 @@
+artifact_uri: file:///home/yash-kumar/Desktop/YASH/Saved Games/Intelligent Data Quality
+  & Drift Monitoring System/mlruns/412091831025684403/e7dee8ddde774031b2ec29599b6c8ff9/artifacts
+end_time: 1765867701814
+entry_point_name: ''
+experiment_id: '412091831025684403'
+lifecycle_stage: active
+run_id: e7dee8ddde774031b2ec29599b6c8ff9
+run_name: masked-fly-118
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765867699310
+status: 3
+tags: []
+user_id: yash-kumar

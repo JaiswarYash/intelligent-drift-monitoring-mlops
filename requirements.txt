@@ -2,7 +2,6 @@ pandas
 joblib
 scikit-learn
 mlflow
-evidently==0.6.7
 matplotlib
 seaborn
 pyyaml
@@ -10,4 +9,5 @@ fastapi
 uvicorn
 numpy
 streamlit
-parfect
+perfect
+evidently

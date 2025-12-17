@@ -1,6 +1,7 @@
 # let's go
 import os
 import pandas as pd
+from datetime import datetime
 from evidently.report import Report
 from evidently.metric_preset import DataDriftPreset
 from evidently.metrics import DatasetSummaryMetric, DatasetMissingValuesMetric
@@ -18,34 +19,38 @@ class monitor_drift:
         reference_df = pd.read_csv(reference_path)
         current_df = pd.read_csv(current_path)
 
-        # Encode target column for consistency
-        reference_df["Churn"] = reference_df["Churn"].apply(lambda x: 1 if x == "Yes" else 0)
-        current_df["Churn"] = current_df["Churn"].apply(lambda x: 1 if x == "Yes" else 0)
+        reference_df["Churn"] = reference_df["Churn"].map({"Yes": 1, "No": 0})
+        current_df["Churn"] = current_df["Churn"].map({"Yes": 1, "No": 0})
 
         os.makedirs(output_dir, exist_ok=True)
 
-        quality_report = Report(metrics=[
-            DatasetSummaryMetric(),
-            DatasetMissingValuesMetric()
-        ])
-
-        quality_report.run(
-            reference_data=reference_df,
-            current_data=current_df,
-            column_mapping=self.column_mapping
-        )
-
-        quality_report.save_html(os.path.join(output_dir, "data_quality_report.html"))
-
         # Drift Report
         drift_report = Report(metrics=[DataDriftPreset()])
-
         drift_report.run(
             reference_data=reference_df,
             current_data=current_df,
             column_mapping=self.column_mapping
         )
 
-        drift_report.save_html(
-            os.path.join(output_dir, "drift_report.html")
-        )
+        drift_path = os.path.join(output_dir, "drift_report.html")
+        drift_report.save_html(drift_path)
+
+        # Extract drift results
+        drift_result = drift_report.as_dict()
+
+        metric_result = drift_result["metrics"][0]["result"]
+
+        dataset_drift = metric_result.get("dataset_drift", False)
+        drifted_features = []
+
+        columns_info = metric_result.get("columns", {})
+        for col, stats in columns_info.items():
+            if stats.get("drift_detected"):
+                drifted_features.append(col)
+                
+        return {
+            "timestamp": datetime.utcnow().isoformat(),
+            "dataset_drift": dataset_drift,
+            "num_drifted_features": len(drifted_features),
+            "drifted_features": drifted_features
+            }

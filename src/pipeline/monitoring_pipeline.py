@@ -1,6 +1,7 @@
 # starting with monitoring pipeline code
 
 from src.components.drift_monitor import monitor_drift
+from src.utils.drift_logger import log_drift
 
 if __name__ == "__main__":
 
@@ -38,10 +39,18 @@ if __name__ == "__main__":
         categorical_cols=CATEGORICAL_COLS
     )
 
-    monitor.run(
+    result = monitor.run(
         reference_path="data/processed/reference.csv",
         current_path="data/processed/production_batch_01.csv",
         output_dir="artifacts/reports/latest"
     )
 
-    print("Drift monitoring completed successfully.")
+    print("DRIFT RESULT:", result)
+
+
+    log_drift(
+        history_path="artifacts/reports/drift_history.csv",
+        drift_result=result
+    )
+
+    print("Drift monitoring + logging completed.")

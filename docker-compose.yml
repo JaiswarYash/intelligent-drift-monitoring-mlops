@@ -1,0 +1,45 @@
+services:
+  mlflow:
+    build: .
+    container_name: mlflow-ui
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./mlflow.db:/app/mlflow.db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: >
+      mlflow ui
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:///mlflow.db
+
+  training:
+    build: .
+    container_name: drift-training
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    # Wait for port 5000 to be active, then run python
+    command: /wait-for-it.sh mlflow:5000 -- python -m src.pipeline.training_pipeline
+
+  monitoring:
+    build: .
+    container_name: drift-monitoring
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    # Wait for port 5000 to be active, then run python
+    command: /wait-for-it.sh mlflow:5000 -- python -m src.pipeline.monitoring_pipeline
